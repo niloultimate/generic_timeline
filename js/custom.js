@@ -187,6 +187,44 @@ function menuGrafico() {
 
 function menuAbout() {
     limparMain();
+
+
+    var divAbout = document.createElement("div");
+    divAbout.className = 'container-fluid';
+
+    
+    var h1About = document.createElement("h1");
+    h1About.innerText = 'About';
+    divAbout.appendChild(h1About);
+    
+    var brAbout = document.createElement("br");
+    divAbout.appendChild(brAbout);
+
+    var pAbout = document.createElement("p");
+    pAbout.className = 'h4';
+    pAbout.innerText = 'Criado por: ';
+
+    var aAbout = document.createElement("a");
+    aAbout.innerText = 'Danilo Motta Hidalgo';
+    aAbout.href = 'github.com/niloultimate';
+    
+
+    pAbout.appendChild(aAbout);
+    divAbout.appendChild(pAbout);
+
+    var pAbout = document.createElement("p");
+    pAbout.className = 'h6';
+    pAbout.innerText = 'Layout utilizado como base: ';
+    
+    var aAbout = document.createElement("a");
+    aAbout.innerText = 'CodePen - UL timeline cards';
+    aAbout.href = 'www.freepik.com/free-vector/infographic-template-with-yearly-info_1252895.htm';
+    
+    pAbout.appendChild(aAbout);
+    divAbout.appendChild(pAbout);
+    
+    // Adiciona o modal à página
+    document.getElementById("main").appendChild(divAbout);
 }
 
 function toggleFullScreen() {
@@ -624,5 +662,5 @@ function editEvento() {
         };
         
     }
-    //carregarMenuEditarEventos()
+    carregarMenuEditarEventos()
 }

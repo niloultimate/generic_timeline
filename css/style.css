@@ -166,6 +166,7 @@ body .timeline-class ul li .descr::before {
 body .timeline-class ul li .descr p {
   margin-left: 10px;
   font-size: small;
+  margin-bottom: 0.2rem;
 }
 
 @media (min-width: 40rem) {
