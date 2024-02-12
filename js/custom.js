@@ -422,6 +422,27 @@ function inserirEvento() {
     
     carregarMenu('1');
 }
+
+function removeEvento($id) {
+
+    if (confirm("Você confirma?")) {
+            
+        var transaction = db.transaction(['eventos_timeline'], 'readwrite');
+        var objectStore = transaction.objectStore('eventos_timeline');
+        var deleteRequest = objectStore.delete($id);
+
+        deleteRequest.onerror = function(event) {
+            console.error("Erro ao excluir o item:", event.target.errorCode);
+        };
+
+        deleteRequest.onsuccess = function(event) {
+            console.log("Item excluído com sucesso!");
+        };
+        
+        carregarMenuEditarEventos();
+        
+    }
+}
 //#endregion
 
 function carregarDesenhoTimeline() {
@@ -480,7 +501,7 @@ function carregarDesenhoTimeline() {
 
                     var divEventoData = document.createElement("div");
                     divEventoData.className = 'date';
-                    divEventoData.innerText = new Date(listItens[i].datahora).toLocaleString();
+                    divEventoData.innerText = new Date(listItens[i].datahora).toLocaleString().replace(',', ' -');
                     liEvento.appendChild(divEventoData);
                     
                     var divEventoTitulo = document.createElement("div");
@@ -489,40 +510,57 @@ function carregarDesenhoTimeline() {
                     liEvento.appendChild(divEventoTitulo);
 
                     var divEventoDescricao = document.createElement("div");
+                    divEventoDescricao.id = 'divEventoDescricao_'+listItens[i].id;
                     divEventoDescricao.className = 'descr';
 
                     //Descrições
                     //#region [Criar itens de crição]
-                    var idEvento = parseInt(listItens[i].id);
-                    var transaction = db.transaction(['eventos_timeline'], 'readwrite');
-                    var objectStore = transaction.objectStore('eventos_timeline');
-                    var request = objectStore.openCursor();
+                    var transactionItens_evento = db.transaction(['itens_evento'], 'readwrite');
+                    var objectStoreItens_evento = transactionItens_evento.objectStore('itens_evento');
+                    var requestItens_evento = objectStoreItens_evento.openCursor();
 
-                    request.onerror = function(event) {
+                    requestItens_evento.onerror = function(event) {
                         console.error('Erro ao abrir o cursor:', event.target.errorCode);
                     };
 
-                    request.onsuccess = function(event) {
-                        var cursor = event.target.result;
+                    listItensDescricao = [];
+                    requestItens_evento.onsuccess = function(event) {
+                        
+                        var idEvento = parseInt(listItens[i].id);
+                        var cursorItens_evento = event.target.result;
 
-                        if (cursor) {
-                                
-                            if(idEvento == parseInt(listItens[i].evento_id)) {
+                        if (cursorItens_evento) {
 
-                                var paragrafo = document.createElement("p");
-                                paragrafo.innerText = listItens[i].descricao;
-                                
-                                divEventoDescricao.appendChild(paragrafo);
+                            if(idEvento == parseInt(cursorItens_evento.value.evento_id)) 
+                            {
+                                listItensDescricao.push({
+                                    id: cursorItens_evento.value.id,
+                                    evento_id: cursorItens_evento.value.evento_id,
+                                    descricao: cursorItens_evento.value.descricao
+                                })
                             } 
             
                             // Move para o próximo item
-                            cursor.continue();
+                            cursorItens_evento.continue();
                         } else {
-                            console.log("Fim da lista de itens.");
+
+                            listItensDescricao.sort(function(a, b) {
+                                return a.id - b.id;
+                            });
+
+                            for (let j = 0; j < listItensDescricao.length; j++) 
+                            {
+                                if(idEvento == parseInt(listItensDescricao[j].evento_id)) 
+                                {
+                                    var paragrafo = document.createElement("p");
+                                    paragrafo.innerText = '- ' + listItensDescricao[j].descricao;
+                                    
+                                    document.getElementById('divEventoDescricao_'+idEvento).appendChild(paragrafo)
+                                }
+                            }
                         }
                     };
-
-
+                    
                     liEvento.appendChild(divEventoDescricao);
 
                     ulLine.appendChild(liEvento);
@@ -586,5 +624,5 @@ function editEvento() {
         };
         
     }
-    carregarMenuEditarEventos()
+    //carregarMenuEditarEventos()
 }

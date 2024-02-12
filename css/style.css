@@ -163,6 +163,11 @@ body .timeline-class ul li .descr::before {
   bottom: 0.25rem;
 }
 
+body .timeline-class ul li .descr p {
+  margin-left: 10px;
+  font-size: small;
+}
+
 @media (min-width: 40rem) {
   body .timeline-class ul {
     grid-template-columns: 1fr var(--line-w) 1fr;

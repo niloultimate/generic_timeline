@@ -812,9 +812,8 @@ function CarregarItemEvento($id = 0, $item = undefined){
                         buttonExcluir.type = 'button';
                         buttonExcluir.className = 'btn btn-outline-danger';
                         buttonExcluir.innerText = 'Excluir';
-                        //buttonExcluir.onclick = excluirEvento;
+                        buttonExcluir.onclick = removeEvento.bind(null, cursor.value.id);
                         $item.appendChild(buttonExcluir);
-                        
                     }
                 }
                 
@@ -913,5 +912,293 @@ function CarregarItemEvento($id = 0, $item = undefined){
 }
 
 function CarregarItemDescricaoEvento(idEvento, idDescricao = 0) {
-    alert(id)
+
+    document.getElementById('hiddenIdEvento').value = idEvento;
+    document.getElementById('spanEventoDescricoes').innerText = '#' + idEvento;
+    document.getElementById('divEventoDescricoes').innerHTML = '';
+
+    var divRow = document.createElement("div");
+    divRow.className = 'row align-items-center';
+
+    var divContainer = document.createElement("div");
+    divContainer.className = 'col-12';
+    
+    var inputHidden = document.createElement("input");
+    inputHidden.id = 'inputIDEventoDescricao';
+    inputHidden.type = 'hidden';
+    inputHidden.value = '';
+    divContainer.appendChild(inputHidden);
+
+    var divGroup = document.createElement("div");
+    divGroup.className = 'input-group';
+
+    var spanDescricao = document.createElement("span");
+    spanDescricao.className = 'input-group-text';
+    spanDescricao.textContent = 'Descrição';
+    divGroup.appendChild(spanDescricao);
+
+    var textareaDescricao = document.createElement("textarea");
+    textareaDescricao.id = 'textareaEventoDescricao';
+    textareaDescricao.className = 'form-control';
+    textareaDescricao.placeholder = 'Descricação do evento';
+    divGroup.appendChild(textareaDescricao);
+
+    var buttonDescricao = document.createElement("button");
+    buttonDescricao.id = 'buttonRegistrar';
+    buttonDescricao.className = 'btn btn-outline-dark';
+    buttonDescricao.type = 'button';
+    buttonDescricao.innerText = 'Registrar';
+    buttonDescricao.onclick = RegistrarEventoDescricao;
+    divGroup.appendChild(buttonDescricao);
+    
+    divContainer.appendChild(divGroup);
+    divRow.appendChild(divContainer);
+
+    var divContainer = document.createElement("div");
+    divContainer.className = 'col-12';
+
+    var divTabela = document.createElement("div");
+    divTabela.className = 'table-responsive';
+
+    var tabelaDescricao = document.createElement("table");
+    tabelaDescricao.id = 'tableEventoDescricao';
+    tabelaDescricao.className = 'table table-striped display table-sm';
+    
+    var theadTabelaDescricao = document.createElement("thead");
+    var trTabelaDescricao = document.createElement("tr");
+
+    var thTabelaDescricao = document.createElement("th");
+    thTabelaDescricao.scope = 'col';
+    thTabelaDescricao.innerText = '#';
+    trTabelaDescricao.appendChild(thTabelaDescricao);
+    
+    var thTabelaDescricao = document.createElement("th");
+    thTabelaDescricao.scope = 'col';
+    thTabelaDescricao.innerText = 'Detalhes da descrição';
+    trTabelaDescricao.appendChild(thTabelaDescricao);
+    
+    var thTabelaDescricao = document.createElement("th");
+    thTabelaDescricao.scope = 'col';
+    thTabelaDescricao.innerText = 'Acões';
+    trTabelaDescricao.appendChild(thTabelaDescricao);
+
+    theadTabelaDescricao.appendChild(trTabelaDescricao);
+    tabelaDescricao.appendChild(theadTabelaDescricao);
+    
+    var tbodyTabelaDescricao = document.createElement("tbody");
+    tbodyTabelaDescricao.id = 'tbodyEventoDescricao';
+    tabelaDescricao.appendChild(tbodyTabelaDescricao);
+
+    divTabela.appendChild(tabelaDescricao);
+    divContainer.appendChild(divTabela);
+    divRow.appendChild(divContainer);
+
+    document.getElementById('divEventoDescricoes').appendChild(divRow);
+
+    CarregarEventoDescricao();
+
+    var myOffcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasDescricoes'));
+
+    if(myOffcanvas._element.ariaModal == null)
+    {
+        myOffcanvas.show();
+    }
+}
+
+function CarregarEventoDescricao(){
+    
+    idEvento = document.getElementById('hiddenIdEvento')?.value;
+
+    var tbodyTabelaDescricao = document.getElementById('tbodyEventoDescricao');
+    tbodyTabelaDescricao.innerHTML = '';
+    
+    var transaction = db.transaction(['itens_evento'], 'readwrite');
+    var objectStore = transaction.objectStore('itens_evento');
+    var request = objectStore.openCursor();
+
+    request.onerror = function(event) {
+        console.error('Erro ao abrir o cursor:', event.target.errorCode);
+    };
+
+    request.onsuccess = function(event) {
+        var cursor = event.target.result;
+
+        if (cursor) {
+            if(!isNaN(idEvento))
+            {
+                if(idEvento == parseInt(cursor.value.evento_id))
+                {
+                    var trTabelaDescricao = document.createElement("tr");
+                    var tdTabelaDescricao = document.createElement("td");
+                    tdTabelaDescricao.scope = 'row';
+                    tdTabelaDescricao.innerText = cursor.value.id;
+                    trTabelaDescricao.appendChild(tdTabelaDescricao);
+                    tbodyTabelaDescricao.appendChild(trTabelaDescricao);
+                    
+                    var tdTabelaDescricao = document.createElement("td");
+                    tdTabelaDescricao.innerText = cursor.value.descricao;
+                    trTabelaDescricao.appendChild(tdTabelaDescricao);
+                    tbodyTabelaDescricao.appendChild(trTabelaDescricao);
+                    
+                    var tdTabelaDescricao = document.createElement("td");
+                    var buttonEdit = document.createElement("button");
+                    buttonEdit.onclick = EditarEventoDescricao.bind(null, cursor.value.id);
+                    buttonEdit.className = 'btn btn-primary';
+
+                    var iconCor = document.createElement("i");
+                    iconCor.className = 'fas fa-edit';
+
+                    buttonEdit.appendChild(iconCor);
+                    tdTabelaDescricao.appendChild(buttonEdit);
+
+                    var buttonEdit = document.createElement("button");
+                    buttonEdit.onclick = ExcluirEventoDescricao.bind(null, cursor.value.id);
+                    buttonEdit.className = 'btn btn-danger';
+
+                    var iconCor = document.createElement("i");
+                    iconCor.className = 'fas fa-trash';
+
+                    buttonEdit.appendChild(iconCor);
+                    tdTabelaDescricao.appendChild(buttonEdit);
+
+                    
+                    trTabelaDescricao.appendChild(tdTabelaDescricao);
+                    tbodyTabelaDescricao.appendChild(trTabelaDescricao);
+                }
+            }
+            
+            // Move para o próximo item
+            cursor.continue();
+        }
+    };
+}
+
+function RegistrarEventoDescricao(){
+
+    id = document.getElementById('inputIDEventoDescricao')?.value;
+    idEvento = document.getElementById('hiddenIdEvento')?.value;
+    descricao = document.getElementById('textareaEventoDescricao')?.value;
+
+    if(descricao == '' || isNaN(idEvento) ||  idEvento == '' || idEvento <= 0 )
+    {
+        return;
+    }
+
+    if(id != undefined && id != '')
+    {
+        
+        var transaction = db.transaction(['itens_evento'], 'readwrite');
+        var objectStore = transaction.objectStore('itens_evento');
+        var request = objectStore.openCursor();
+    
+        request.onerror = function(event) {
+            console.error("Erro ao abrir o cursor:", event.target.errorCode);
+        };
+    
+        request.onsuccess = function(event) {
+            var cursor = event.target.result;
+            
+            if (cursor) {
+                // Verifica se o cursor está no item que desejamos atualizar
+                if (parseInt(cursor.value.id) == parseInt(id)) {
+                    // Atualiza os dados do item
+                    cursor.value.evento_id = idEvento;
+                    cursor.value.descricao = descricao;
+    
+                    // Atualiza o item na armazenagem
+                    var updateRequest = cursor.update(cursor.value);
+    
+                    updateRequest.onerror = function(event) {
+                        console.error("Erro ao atualizar o item:", event.target.errorCode);
+                    };
+    
+                    updateRequest.onsuccess = function(event) {
+                        console.log("Item atualizado com sucesso!");
+                    };
+                }
+    
+                // Move para o próximo item
+                cursor.continue();
+            } else {
+                console.log("Item não encontrado no banco de dados.");
+            }
+        };
+        
+    }
+    else
+    {
+        var transaction = db.transaction(['itens_evento'], 'readwrite');
+        var objectStore = transaction.objectStore('itens_evento');
+    
+        var novoRegistro = { evento_id: idEvento, descricao: descricao };
+    
+        var request = objectStore.add(novoRegistro);
+    
+        request.onsuccess = function () {
+            console.log('Registro inserido na tabela "itens_evento" com sucesso. ID: ' + request.result);
+        };
+    
+        request.onerror = function (event) {
+            console.error('Erro ao inserir o registro na tabela "itens_evento":', event.target.errorCode);
+        };
+        
+    }
+    
+    CarregarItemDescricaoEvento(idEvento);
+}
+
+function EditarEventoDescricao($id)
+{
+
+    var transaction = db.transaction(['itens_evento'], 'readwrite');
+    var objectStore = transaction.objectStore('itens_evento');
+    var request = objectStore.openCursor();
+
+    request.onerror = function(event) {
+        console.error("Erro ao abrir o cursor:", event.target.errorCode);
+    };
+
+    request.onsuccess = function(event) {
+        var cursor = event.target.result;
+        
+        if (cursor) {
+            // Verifica se o cursor está no item que desejamos atualizar
+            if (parseInt(cursor.value.id) == parseInt($id)) {
+                // Atualiza os dados do item
+                document.getElementById('inputIDEventoDescricao').value = cursor.value.id;
+                document.getElementById('hiddenIdEvento').value = cursor.value.evento_id;
+                document.getElementById('textareaEventoDescricao').value = cursor.value.descricao;
+                document.getElementById('buttonRegistrar').className = 'btn btn-outline-primary';
+            }
+
+            // Move para o próximo item
+            cursor.continue();
+        } else {
+            console.log("Item não encontrado no banco de dados.");
+        }
+    };
+}
+
+function ExcluirEventoDescricao($id)
+{
+    
+    if (confirm("Você confirma?")) {
+            
+        idEvento = document.getElementById('hiddenIdEvento')?.value;
+
+        var transaction = db.transaction(['itens_evento'], 'readwrite');
+        var objectStore = transaction.objectStore('itens_evento');
+        var deleteRequest = objectStore.delete($id);
+
+        deleteRequest.onerror = function(event) {
+            console.error("Erro ao excluir o item:", event.target.errorCode);
+        };
+
+        deleteRequest.onsuccess = function(event) {
+            console.log("Item excluído com sucesso!");
+        };
+        
+        CarregarItemDescricaoEvento(idEvento);
+        
+    }
 }
